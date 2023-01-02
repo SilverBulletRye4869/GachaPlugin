@@ -1,0 +1,8 @@
+name: GachaPlugin
+version: '${project.version}'
+main: silverassist.gachaplugin.GachaPlugin
+api-version: 1.17
+
+commands:
+  gacha:
+    usage: /gacha
