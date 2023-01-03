@@ -14,6 +14,8 @@ public final class GachaPlugin extends JavaPlugin {
         // Plugin startup logic
         plugin = this;
         dataYml = new CustomConfig(this,"data.yml");
+        dataYml.saveDefaultConfig();
+
         new Command(this, new Setup(this));
     }
 
