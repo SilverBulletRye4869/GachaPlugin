@@ -2,7 +2,7 @@ package silverassist.gachaplugin.menu.admin;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
-import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.HandlerList;
@@ -17,82 +17,93 @@ import silverassist.gachaplugin.CustomConfig;
 import silverassist.gachaplugin.GachaPlugin;
 import silverassist.gachaplugin.Util;
 
+import java.io.IOException;
 import java.util.List;
 
 import static org.yaml.snakeyaml.nodes.Tag.PREFIX;
 
 public class ItemEdit {
     private static final ItemStack[] RANK_BLOCK = new ItemStack[]{
-            Util.createItem(Material.IRON_BLOCK, "§7§lノーマル"),
-            Util.createItem(Material.COPPER_BLOCK, "§c§lレア"),
-            Util.createItem(Material.GOLD_BLOCK, "§e§lスーパーレア"),
-            Util.createItem(Material.DIAMOND_BLOCK, "§b§lウルトラレア"),
-            Util.createItem(Material.NETHERITE_BLOCK, "§5§lレジェンダリー")
+            Util.createItem(Material.IRON_BLOCK, "§7§lノーマル",List.of("§f§lクリックで変更")),
+            Util.createItem(Material.COPPER_BLOCK, "§c§lレア",List.of("§f§lクリックで変更")),
+            Util.createItem(Material.GOLD_BLOCK, "§e§lスーパーレア",List.of("§f§lクリックで変更")),
+            Util.createItem(Material.DIAMOND_BLOCK, "§b§lウルトラレア",List.of("§f§lクリックで変更")),
+            Util.createItem(Material.NETHERITE_BLOCK, "§5§lレジェンダリー",List.of("§f§lクリックで変更"))
     };
+
+    private static final JavaPlugin plugin = GachaPlugin.getInstance();
 
 
     private final Player p;
-    private final JavaPlugin plugin = GachaPlugin.getInstance();
     private final String GACHA_ID;
     private final int ITEM_ID;
+    private final YamlConfiguration DATA;
     private boolean isBack = true;
-    private CustomConfig DATA = GachaPlugin.getDataYml();
+
 
     public ItemEdit(Player p, String gachaID, int itemID) {
         this.p = p;
+        p.closeInventory();
         this.GACHA_ID = gachaID;
         this.ITEM_ID = itemID;
+        this.DATA=CustomConfig.getYmlByID(gachaID);
         plugin.getServer().getPluginManager().registerEvents(new listener(), plugin);
     }
 
     public void open(){
-        FileConfiguration data = DATA.getConfig();
+
         Inventory inv = Bukkit.createInventory(p, 27, PREFIX + "§d§lアイテムの詳細設定");
-        Util.invFill(inv, Util.createItem(Material.BLUE_STAINED_GLASS_PANE, "§r"));
-        int weight = data.getInt(GACHA_ID + "." + ITEM_ID + ".weight");
-        int rank = data.getInt(GACHA_ID + "." + ITEM_ID + ".rank");
+        Util.invFill(inv);
+        int weight = DATA.getInt(ITEM_ID+".weight");
+        int rank = DATA.getInt(ITEM_ID+ ".rank");
         inv.setItem(11, Util.createItem(Material.PAPER, "§6§l比重: " + weight, List.of("§f§lクリックで変更")));
         inv.setItem(15, RANK_BLOCK[rank]);
+
+        //inv.setItem(xxx,Util.createItem(Material.CHEST,"§c§lガチャを回せる回数を設定"));
         inv.setItem(26, Util.createItem(Material.LAVA_BUCKET, "§c§k§laa §r§c§lこのアイテムを削除 §c§k§laa"));
-        p.openInventory(inv);
+        Bukkit.getScheduler().runTaskLater(plugin, new Runnable() {
+            @Override
+            public void run() {
+                p.openInventory(inv);
+            }
+        },1);
     }
 
 
     private class listener implements Listener {
         @EventHandler
         public void onInventoryClose(InventoryCloseEvent e){
-            if(!p.equals(e.getPlayer()) || !isBack)return;
-            new ItemList(p,GACHA_ID).open();
+            if(!p.equals(e.getPlayer()))return;
             HandlerList.unregisterAll(this);
+            if(isBack)new ItemList(p,GACHA_ID).open();
         }
 
         @EventHandler
-        public void onInventoryClick(InventoryClickEvent e){
-            if(!e.getClickedInventory().getType().equals(InventoryType.CHEST))return;
+        public void onInventoryClick(InventoryClickEvent e) throws IOException {
+            if(!p.equals(e.getWhoClicked()) || !e.getClickedInventory().getType().equals(InventoryType.CHEST))return;
             if(e.getCurrentItem() == null || e.getCurrentItem().getType() == Material.AIR)return;
             e.setCancelled(true);
-            FileConfiguration data = DATA.getConfig();
             switch (e.getSlot()){
                 case 11:
-                    p.closeInventory();
                     isBack=false;
-                    new SetItemWeight(p,GACHA_ID,ITEM_ID);
-                    break;
+                    new SetNum(p,GACHA_ID,ITEM_ID+".weight").open();
+                    return;
+
                 case 15:
-                    int rank = data.getInt(GACHA_ID+"."+ITEM_ID+".rank") + 1;
+                    int rank = DATA.getInt(ITEM_ID+".rank") + 1;
                     if(rank>= RANK_BLOCK.length)rank=0;
-                    data.set(GACHA_ID+"."+ITEM_ID+".rank",rank);
+                    DATA.set(ITEM_ID+".rank",rank);
                     e.getClickedInventory().setItem(15,RANK_BLOCK[rank]);
                     break;
+
                 case 26:
-                    int dataSize = data.getConfigurationSection(GACHA_ID).getKeys(false).size();
-                    for(int i = ITEM_ID;i<dataSize-1;i++){
-                        data.set(GACHA_ID+"."+i,GACHA_ID+"."+(i+1));
-                    }
-                    data.set(GACHA_ID+"."+(dataSize-1),null);
+                    int dataSize = DATA.getKeys(false).size() - 2;
+                    for(int i = ITEM_ID;i<dataSize-1;i++)DATA.set(String.valueOf(i),DATA.get(String.valueOf(i+1)));
+                    DATA.set(String.valueOf(dataSize-1),null);
                     p.closeInventory();
             }
 
+            DATA.save(CustomConfig.getYmlFileByID(GACHA_ID));
         }
 
     }
