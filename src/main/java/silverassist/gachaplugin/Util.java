@@ -11,7 +11,8 @@ import java.util.HashMap;
 import java.util.List;
 
 public class Util {
-    private static String PREFIX = "§b§l[§e§lGacha§b§l]";
+    public static final String PREFIX = "§b§l[§e§lGacha§b§l]";
+    public static final ItemStack GUI_BG = createItem(Material.LIGHT_BLUE_STAINED_GLASS_PANE,"§r");
 
     public static ItemStack createItem(Material m,String name){return createItem(m,name,null,0,null);}
 
@@ -31,6 +32,7 @@ public class Util {
         return item;
     }
 
+    public static void invFill(Inventory inv){invFill(inv,GUI_BG,false);}
     public static void invFill(Inventory inv,ItemStack item){invFill(inv,item,false);}
     public static void invFill(Inventory inv,ItemStack item,boolean isAppend){
         int size = inv.getSize();
@@ -43,4 +45,6 @@ public class Util {
     public static void sendPrefixMessage(Player p, String msg){
         p.sendMessage(PREFIX+"§r"+msg);
     }
+
+
 }
