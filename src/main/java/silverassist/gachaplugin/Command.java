@@ -1,19 +1,24 @@
 package silverassist.gachaplugin;
 
 import org.bukkit.Bukkit;
+import org.bukkit.Material;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
 import silverassist.gachaplugin.mainSystem.Setup;
 import silverassist.gachaplugin.mainSystem.Spin;
-import silverassist.gachaplugin.menu.admin.ItemList;
+import silverassist.gachaplugin.menu.admin.MainMenu;
+
+import java.io.IOException;
 
 import static silverassist.gachaplugin.Util.sendPrefixMessage;
 
 public class Command implements CommandExecutor {
     private final JavaPlugin plugin;
-    private final CustomConfig dataYml = GachaPlugin.getDataYml();
+
     private final Setup GACHA;
 
     public Command(JavaPlugin plugin, Setup gacha){
@@ -28,10 +33,13 @@ public class Command implements CommandExecutor {
 
         Player p = (Player) sender;
         String id = null;
-        if(args.length>0)id = args[1];
+        if(args.length>0){
+            id = args[1];
+        }
         switch (args[0]){
             case "test":
                 if(Spin.isPlay(p))return true;
+
                 GACHA.getGacha("test").run(p);
                 return true;
             case "start":
@@ -40,16 +48,29 @@ public class Command implements CommandExecutor {
                     return true;
                 }
                 Player runner = args.length==3 ? Bukkit.getPlayer(args[2]) : p;
-                GACHA.getGacha(id).run(runner);
+                Spin gacha = GACHA.getGacha(id);
+                if(gacha!=null)gacha.run(runner);
+                else sendPrefixMessage(p,"§cガチャが見つかりません");
+
                 return true;
             case "create":
-                if(dataYml.getConfig().get(id)!=null){
-                    sendPrefixMessage(p,"§cそのガチャは既に存在します");
+                if(!CustomConfig.existYml(id)){
+                    YamlConfiguration DATA = CustomConfig.getYmlByID(id);
+                    DATA.set("money",0);
+                    DATA.set("item",new ItemStack(Material.AIR));
+                    try {
+                        DATA.save(CustomConfig.getYmlFileByID(id));
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+
+            case "edit":
+                if(!CustomConfig.existYml(id)){
+                    sendPrefixMessage(p,"§cガチャが存在しません");
                     return true;
                 }
-                dataYml.getConfig().set(id,"unsetted");
-            case "edit":
-                new ItemList(p,id).open();
+                new MainMenu(p,id).open();
         }
         return true;
     }
