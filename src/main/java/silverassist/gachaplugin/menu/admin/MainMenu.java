@@ -40,8 +40,8 @@ public class MainMenu {
         invFill(inv);
         inv.setItem(11,createItem(Material.DROPPER,"§6§l排出品の設定"));
         inv.setItem(13, createItem(Material.GOLD_INGOT,"§6§l回すのに必要なお金･アイテムの変更", List.of(
-                "§a料金: "+(DATA.get("money") == null ? 100 : DATA.getInt("money")),
-                "§aアイテム: "+(DATA.get("item") == null ? "§c§lなし" : "§d§lあり")
+                "§a料金: §6§l"+(DATA.getInt("money")+"円"),
+                "§aアイテム: "+(DATA.getItemStack("item").getType().equals(Material.AIR) ? "§c§lなし" : "§d§lあり")
         )));
         inv.setItem(15,createItem(Material.BEDROCK,"§7§l近日実装予定"));
         Bukkit.getScheduler().runTaskLater(plugin, new Runnable() {
