@@ -16,7 +16,6 @@ import org.bukkit.plugin.java.JavaPlugin;
 import silverassist.gachaplugin.CustomConfig;
 import silverassist.gachaplugin.GachaPlugin;
 
-import java.io.IOException;
 import java.util.List;
 
 import static silverassist.gachaplugin.Util.*;
@@ -72,7 +71,7 @@ public class SetNum {
             else new ItemEdit(p,GACHA_ID,Integer.parseInt(types[0])).open();
         }
         @EventHandler
-        public void onInventoryClick(InventoryClickEvent e) throws IOException {
+        public void onInventoryClick(InventoryClickEvent e){
             if(!p.equals(e.getWhoClicked()) || !e.getInventory().getType().equals(InventoryType.CHEST))return;
             e.setCancelled(true);
             int slot = e.getSlot();
@@ -92,7 +91,8 @@ public class SetNum {
                     e.getClickedInventory().setItem(15,createItem(nowNum == 0 ? Material.PAPER : Material.MAP,"§6§l"+nowNum));
                     return;
             }
-            DATA.save(CustomConfig.getYmlFileByID(GACHA_ID));
+            CustomConfig.saveYmlByID(GACHA_ID);
+            //DATA.save(CustomConfig.getYmlFileByID(GACHA_ID));
         }
     }
 }

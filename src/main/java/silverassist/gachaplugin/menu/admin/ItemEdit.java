@@ -103,7 +103,8 @@ public class ItemEdit {
                     p.closeInventory();
             }
 
-            DATA.save(CustomConfig.getYmlFileByID(GACHA_ID));
+            CustomConfig.saveYmlByID(GACHA_ID);
+            //DATA.save(CustomConfig.getYmlFileByID(GACHA_ID));
         }
 
     }

@@ -16,7 +16,6 @@ import org.bukkit.plugin.java.JavaPlugin;
 import silverassist.gachaplugin.CustomConfig;
 import silverassist.gachaplugin.GachaPlugin;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -77,7 +76,7 @@ public class ItemList {
         }
 
         @EventHandler
-        public void onInventoryClick(InventoryClickEvent e) throws IOException {
+        public void onInventoryClick(InventoryClickEvent e){
             if(!e.getWhoClicked().equals(p))return;
             if(e.getCurrentItem() == null || e.getCurrentItem().getType() == Material.AIR)return;
             e.setCancelled(true);
@@ -104,7 +103,8 @@ public class ItemList {
                     item.setItemMeta(itemMeta);
                     p.getOpenInventory().setItem(dataSize,item);
             }
-            DATA.save(CustomConfig.getYmlFileByID(GACHA_ID));
+            CustomConfig.saveYmlByID(GACHA_ID);
+            //DATA.save(CustomConfig.getYmlFileByID(GACHA_ID));
         }
     }
 }

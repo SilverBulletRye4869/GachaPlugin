@@ -14,7 +14,6 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
 import silverassist.gachaplugin.CustomConfig;
 import silverassist.gachaplugin.GachaPlugin;
-
 import java.io.IOException;
 import java.util.List;
 
@@ -41,7 +40,8 @@ public class SetPaymentMenu {
         Inventory inv = Bukkit.createInventory(p,27,PREFIX+"§d"+GACHA_ID+"§aの回転に必要な料金･アイテム設定");
         invFill(inv);
         inv.setItem(11,createItem(Material.GOLD_INGOT,"§6§l金額の設定", List.of("§a§l現在: §d§l"+DATA.getInt("money")+"円")));
-        inv.setItem(15,DATA.getItemStack("item") == null ? createItem(Material.BARRIER,"§c§lなし") : DATA.getItemStack("item"));
+        sendPrefixMessage(p,DATA.getItemStack("item").getType().toString());
+        inv.setItem(15,DATA.getItemStack("item").getType().equals(Material.AIR)? createItem(Material.BARRIER,"§c§lなし") : DATA.getItemStack("item"));
         Bukkit.getScheduler().runTaskLater(plugin, new Runnable() {
             @Override
             public void run() {
@@ -59,7 +59,7 @@ public class SetPaymentMenu {
 
         @EventHandler
         public void onInventoryClick(InventoryClickEvent e) throws IOException {
-            if(!p.equals(e.getWhoClicked()))return;
+            if(!p.equals(e.getWhoClicked()) || e.getCurrentItem()==null)return;
             e.setCancelled(true);
             switch (e.getClickedInventory().getType()) {
                 case CHEST:
@@ -74,12 +74,14 @@ public class SetPaymentMenu {
                             break;
 
                     }
+                    break;
                 case PLAYER:
-                    if(e.getCurrentItem()==null || e.getCurrentItem().getType()==Material.AIR)return;
+                    if(e.getCurrentItem().getType()==Material.AIR)return;
                     DATA.set("item",e.getCurrentItem());
                     p.getOpenInventory().setItem(15,e.getCurrentItem());
             }
-            DATA.save(CustomConfig.getYmlFileByID(GACHA_ID));
+            CustomConfig.saveYmlByID(GACHA_ID);
+            //DATA.save(CustomConfig.getYmlFileByID(GACHA_ID));
         }
     }
 
