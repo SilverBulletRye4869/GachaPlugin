@@ -14,6 +14,7 @@ import silverassist.gachaplugin.Util;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 import java.util.TreeMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -23,12 +24,8 @@ public class Setup {
     private final HashMap<String,Map<ItemStack,Integer>> GACHA_DATA= new HashMap<>();
     private final HashMap<String,Spin> SPIN_DATA = new HashMap<>();
 
-    private JavaPlugin plugin;
-
     public Setup(JavaPlugin plugin){
-        this.plugin = plugin;
-
-        GACHA_DATA.put("test", Map.of(
+        GACHA_DATA.put("__debug__", Map.of(
                 Util.createItem(Material.GRASS_BLOCK,"§a§l草"),1,
                 Util.createItem(Material.DIAMOND_BLOCK,"§b§lダイヤB"),1,
                 new ItemStack(Material.GOLD_BLOCK),1,
@@ -41,28 +38,35 @@ public class Setup {
 
     public Spin getGacha(String id){
         if(SPIN_DATA.containsKey(id))SPIN_DATA.get(id);
-        return (reloadGacha(id) ? SPIN_DATA.get(id) :null);  //reloadに失敗した場合(ファイルが存在しない場合)
+        return (reloadGacha(id) ? SPIN_DATA.get(id) :null);  //reloadに失敗した場合(ファイルが存在しない場合)nullを返す
     }
 
     public boolean reloadGacha(String id){
         TreeMap<Integer,ItemStack> gachaData = new TreeMap<>();
         AtomicInteger now = new AtomicInteger();
         try {
-            getData(id).forEach((item, weight) -> {
+            getData(id,!id.equals("__debug__")).forEach((item, weight) -> {
                 now.addAndGet(weight);
                 gachaData.put(now.get(), item);
             });
         }catch (NullPointerException e){
-            System.err.println(id+"のガチャをreloadしようとしましたが失敗しました");
+            System.err.println(id+"のガチャをreloadしようとしましたがデータが見つかりませんでした。");
             return false;
         }
         SPIN_DATA.put(id,new Spin(id,gachaData));
         return true;
     }
 
-    public Map<ItemStack,Integer> getData(String id){
-        if(GACHA_DATA.containsKey(id))return GACHA_DATA.get(id);
-        if(!CustomConfig.existYml(id))return null;
+    public Map<ItemStack,Integer> getData(String id){return getData(id,false);}
+    public Map<ItemStack,Integer> getData(String id,boolean toReload){
+        if(!GACHA_DATA.containsKey(id) || toReload) {
+            if(!reloadData(id))return null;
+        };
+        return GACHA_DATA.get(id);
+    }
+
+    public boolean reloadData(String id){
+        if(!CustomConfig.existYml(id)){System.err.println("ガチャ『"+id+"』が存在しません");return false;}
         YamlConfiguration data = CustomConfig.getYmlByID(id);
 
         Map<ItemStack,Integer> gachaData = new HashMap<>();
@@ -70,26 +74,31 @@ public class Setup {
             if(data.get(String.valueOf(i))==null)break;
             gachaData.put(data.getItemStack(i+".item"),data.getInt(i+".weight"));
         }
-        if(gachaData.size()==0)return null;
+        if(gachaData.size()==0){System.err.println("ガチャ『"+id+"』が空です");return false;};
         GACHA_DATA.put(id,gachaData);
-        return gachaData;
+        return true;
+    }
+
+    public Set<String> getLoadedGachaSet(){
+        return GACHA_DATA.keySet();
     }
 
     private class listener implements Listener {
         @EventHandler
+        public void inventoryCloseEvent(InventoryCloseEvent e){
+            if(!(e.getPlayer() instanceof Player))return;
+            Player p = (Player) e.getPlayer();
+            if(Spin.isOpen(p))Spin.setClose(p);
+        }
+        @EventHandler
         public void inventoryClickEvent(InventoryClickEvent e){
             if(!(e.getWhoClicked() instanceof Player))return;
             Player p = (Player) e.getWhoClicked();
-            if(!Spin.isOpen(p))return;
+            if(e.getCurrentItem()==null || !Spin.isOpen(p))return;
             e.setCancelled(true);
             sendPrefixMessage(p,"§cガチャをまわしている間はインベントリを触ることはできません");
         }
 
-        @EventHandler void inventoryCloseEvent(InventoryCloseEvent e){
-            if(!(e.getPlayer() instanceof Player))return;
-            Player p = (Player) e.getPlayer();
-            if(Spin.isOpen(p))Spin.setClose(p);
 
-        }
     }
 }
