@@ -20,7 +20,7 @@ import silverassist.gachaplugin.Util;
 import java.io.IOException;
 import java.util.List;
 
-import static org.yaml.snakeyaml.nodes.Tag.PREFIX;
+import static silverassist.gachaplugin.Util.PREFIX;
 
 public class ItemEdit {
     private static final ItemStack[] RANK_BLOCK = new ItemStack[]{

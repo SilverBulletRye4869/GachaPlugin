@@ -29,7 +29,7 @@ public class SetNum {
     private final String PATH;
     private final String GACHA_ID;
     private final YamlConfiguration DATA;
-    private int nowNum = 0;
+    private int nowNum;
 
     public SetNum(Player p,String gachaID, String path) {
         this.p = p;
@@ -37,6 +37,7 @@ public class SetNum {
         this.PATH = path;
         this.GACHA_ID = gachaID;
         DATA= CustomConfig.getYmlByID(gachaID);
+        nowNum = path.contains("weight") ? DATA.getInt(path) : 0;
         plugin.getServer().getPluginManager().registerEvents(new listener(), plugin);
     }
 

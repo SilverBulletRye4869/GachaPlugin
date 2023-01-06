@@ -19,7 +19,8 @@ import silverassist.gachaplugin.GachaPlugin;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.yaml.snakeyaml.nodes.Tag.PREFIX;
+import static silverassist.gachaplugin.Util.PREFIX;
+
 
 public class ItemList {
 
