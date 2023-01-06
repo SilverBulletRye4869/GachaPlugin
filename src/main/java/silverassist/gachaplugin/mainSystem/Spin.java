@@ -14,6 +14,7 @@ import silverassist.gachaplugin.Util;
 
 import java.util.*;
 
+import static silverassist.gachaplugin.Util.PREFIX;
 import static silverassist.gachaplugin.Util.sendPrefixMessage;
 
 public class Spin {
@@ -26,16 +27,23 @@ public class Spin {
     private static Set<Player> playing = new HashSet<>();
     private static Set<Player> openingGachaGUI = new HashSet<>();
 
+
+    private final Setup GACHA_SYSTEM;
     private final String ID;
-    private TreeMap<Integer,ItemStack> gachaData;
+    private final LinkedHashMap<Integer,ItemStack> spinData;
     private final int RANDOM_MAX;
+    private final LinkedList<Integer> MAP_KEY_LIST;
+    private final List<Integer> RARE_DATA;
     private final int PAYMENT_MONEY;
     private final ItemStack PAYMENT_ITEM;
 
-    public Spin(String id,TreeMap<Integer,ItemStack> gachaData){
+    public Spin(Setup system,String id,LinkedHashMap<Integer,ItemStack> spinData, List rareData){
+        this.GACHA_SYSTEM = system;
         this.ID = id;
-        this.gachaData = gachaData;
-        this.RANDOM_MAX = gachaData.lastKey();
+        this.spinData = spinData;
+        this.RANDOM_MAX = (int) spinData.keySet().toArray()[spinData.size()-1];
+        this.MAP_KEY_LIST = new LinkedList<>(spinData.keySet());
+        this.RARE_DATA = rareData;
         YamlConfiguration y = CustomConfig.getYmlByID(id);
         PAYMENT_MONEY = y.getInt("money");
         PAYMENT_ITEM = y.getItemStack("item");
@@ -67,9 +75,11 @@ public class Spin {
                 //予めあたりは決めておく
                 int bingoNum = (int) (Math.random()*RANDOM_MAX);
                 ItemStack bingoItem=null;
-                for(int j : gachaData.keySet()){
+                int rare = 0;
+                for(int j : spinData.keySet()){
                     if(bingoNum>=j)continue;
-                    bingoItem = gachaData.get(j);
+                    bingoItem = spinData.get(j);
+                    rare = RARE_DATA.get(MAP_KEY_LIST.indexOf(j));
                     break;
                 }
 
@@ -82,9 +92,9 @@ public class Spin {
                         if(i==LOOP_NUM-5)inv_c.setItem(17,bingoItem);  //最後に留まる位置の調整
                         else {
                             int next = (int) (Math.random() * RANDOM_MAX);
-                            for (int j : gachaData.keySet()) {
+                            for (int j : spinData.keySet()) {
                                 if (next >= j) continue;
-                                inv_c.setItem(17, gachaData.get(j));
+                                inv_c.setItem(17, spinData.get(j));
                                 break;
                             }
                         }
@@ -105,7 +115,15 @@ public class Spin {
                 p.getInventory().addItem(bingoItem);
 
                 String name = bingoItem.getItemMeta().getDisplayName();
-                sendPrefixMessage(p,"§a§lおめでとうございます！§6§l『§d§l"+(name.equals("") ? bingoItem.getType() : name)+"§6§l』§a§lが当たりました！！");
+                String gotItem = (name.equals("") ? bingoItem.getType().toString() : name);
+                sendPrefixMessage(p,"§a§lおめでとうございます！§6§l『§d§l"+gotItem+"§6§l』§a§lが当たりました！！");
+
+                if(GACHA_SYSTEM.announce.get(rare+"b"))plugin.getServer().broadcastMessage(PREFIX+"ce§l"+p.getName()+"§a§lが『§d§l"+gotItem+"§a§l』を、§6§l"+ID+"§a§lで引き当てました！！");
+                if(GACHA_SYSTEM.announce.get(rare+"t")){
+                    plugin.getServer().getOnlinePlayers().forEach(player ->{
+                        player.sendTitle("§d§l"+gotItem+"§a§lが当選！！","§c§l"+p.getName()+"§a§lが§6§l"+ID+"§a§lで獲得！",1,40,1);
+                    });
+                }
 
                 playing.remove(p);
             }
