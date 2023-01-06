@@ -1,6 +1,7 @@
 package silverassist.gachaplugin;
 
 import org.bukkit.plugin.java.JavaPlugin;
+import silverassist.gachaplugin.event.SignEvent;
 import silverassist.gachaplugin.mainSystem.Setup;
 import silverassist.gachaplugin.menu.user.GachaOpen;
 
@@ -26,6 +27,7 @@ public final class GachaPlugin extends JavaPlugin {
         GACHA_SYSTEM = new Setup(this);
         GACHA_OPEN = new GachaOpen(this);
         new Command(this);
+        new SignEvent(this);
 
     }
 
