@@ -40,7 +40,6 @@ public class SetPaymentMenu {
         Inventory inv = Bukkit.createInventory(p,27,PREFIX+"§d"+GACHA_ID+"§aの回転に必要な料金･アイテム設定");
         invFill(inv);
         inv.setItem(11,createItem(Material.GOLD_INGOT,"§6§l金額の設定", List.of("§a§l現在: §d§l"+DATA.getInt("money")+"円")));
-        sendPrefixMessage(p,DATA.getItemStack("item").getType().toString());
         inv.setItem(15,DATA.getItemStack("item").getType().equals(Material.AIR)? createItem(Material.BARRIER,"§c§lなし") : DATA.getItemStack("item"));
         Bukkit.getScheduler().runTaskLater(plugin, new Runnable() {
             @Override
