@@ -1,6 +1,7 @@
 package silverassist.gachaplugin.mainSystem;
 
 import org.bukkit.Material;
+import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -12,17 +13,17 @@ import org.bukkit.plugin.java.JavaPlugin;
 import silverassist.gachaplugin.CustomConfig;
 import silverassist.gachaplugin.Util;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeMap;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static silverassist.gachaplugin.Util.sendPrefixMessage;
 
 public class Setup {
+
     private final HashMap<String,Map<ItemStack,Integer>> GACHA_DATA= new HashMap<>();
+    private final HashMap<String,List<Integer>> RARE_DATA = new HashMap<>();
     private final HashMap<String,Spin> SPIN_DATA = new HashMap<>();
+    HashMap<String,Boolean> announce = new HashMap<>();
 
     public Setup(JavaPlugin plugin){
         GACHA_DATA.put("__debug__", Map.of(
@@ -31,8 +32,13 @@ public class Setup {
                 new ItemStack(Material.GOLD_BLOCK),1,
                 new ItemStack(Material.EMERALD_BLOCK),1
         ));
-
         plugin.getServer().getPluginManager().registerEvents(new listener(),plugin);
+        FileConfiguration config = plugin.getConfig();
+        Map<String,String> map = Map.of("normal","0","rare","1","super_rare","2","ultra_rare","3","legendary","4");
+        map.keySet().forEach(key ->{
+            announce.put(map.get(key)+"b",config.getBoolean("message."+key+".broadcast"));
+            announce.put(map.get(key)+"t",config.getBoolean("message."+key+".title"));
+        });
     }
 
 
@@ -42,18 +48,18 @@ public class Setup {
     }
 
     public boolean reloadGacha(String id){
-        TreeMap<Integer,ItemStack> gachaData = new TreeMap<>();
+        LinkedHashMap<Integer,ItemStack> spinData = new LinkedHashMap<>();
         AtomicInteger now = new AtomicInteger();
         try {
             getData(id,!id.equals("__debug__")).forEach((item, weight) -> {
                 now.addAndGet(weight);
-                gachaData.put(now.get(), item);
+                spinData.put(now.get(), item);
             });
         }catch (NullPointerException e){
             System.err.println(id+"のガチャをreloadしようとしましたがデータが見つかりませんでした。");
             return false;
         }
-        SPIN_DATA.put(id,new Spin(id,gachaData));
+        SPIN_DATA.put(id,new Spin(this,id,spinData,RARE_DATA.get(id)));
         return true;
     }
 
@@ -68,11 +74,12 @@ public class Setup {
     public boolean reloadData(String id){
         if(!CustomConfig.existYml(id)){System.err.println("ガチャ『"+id+"』が存在しません");return false;}
         YamlConfiguration data = CustomConfig.getYmlByID(id);
-
-        Map<ItemStack,Integer> gachaData = new HashMap<>();
+        LinkedHashMap<ItemStack,Integer> gachaData = new LinkedHashMap<>();
+        RARE_DATA.put(id,new ArrayList<>());
         for(int i = 0;i<54;i++){
             if(data.get(String.valueOf(i))==null)break;
             gachaData.put(data.getItemStack(i+".item"),data.getInt(i+".weight"));
+            RARE_DATA.get(id).add(data.getInt(i+".rank"));
         }
         if(gachaData.size()==0){System.err.println("ガチャ『"+id+"』が空です");return false;};
         GACHA_DATA.put(id,gachaData);
