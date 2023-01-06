@@ -1,0 +1,17 @@
+message:
+  normal:
+    broadcast: false
+    title: false
+  rare:
+    broadcast: false
+    title: false
+  super_rare:
+    broadcast: false
+    title: false
+  ultra_rare:
+    broadcast: true
+    title: false
+  legendary:
+    broadcast: true
+    title: true
+
