@@ -66,7 +66,7 @@ public class Command implements CommandExecutor {
                 return true;
             case "create":
                 if(!CustomConfig.existYml(id)){
-                    YamlConfiguration DATA = CustomConfig.getYmlByID(id);
+                    YamlConfiguration DATA = CustomConfig.createYmlByID(id);
                     DATA.set("money",0);
                     DATA.set("item",new ItemStack(Material.AIR));
                     CustomConfig.saveYmlByID(id);
@@ -104,7 +104,7 @@ public class Command implements CommandExecutor {
                 return true;
 
             case "list":
-                Stream<Path> stream=null;
+                Stream<Path> stream;
                 try {
                     stream = Files.list(Paths.get(plugin.getDataFolder().getPath()+"/data"));
                 } catch (IOException e) {
@@ -112,7 +112,9 @@ public class Command implements CommandExecutor {
                     new IOException("dataフォルダの取得に失敗しました");
                     return true;
                 }
-                new GachaList(p,stream);
+                GachaList gachalist = new GachaList(p,stream);
+                if(args.length == 2 && args[1].equals("noicon"))gachalist.open(0,true);
+                else gachalist.open(0,false);
             }
         return true;
     }
