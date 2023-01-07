@@ -21,7 +21,7 @@ import static silverassist.gachaplugin.Util.sendPrefixMessage;
 public class Setup {
 
     private final HashMap<String,Map<ItemStack,Integer>> GACHA_DATA= new HashMap<>();
-    private final HashMap<String,List<Integer>> RARE_DATA = new HashMap<>();
+    private final HashMap<String,List<Integer>> RANK_DATA = new HashMap<>();
     private final HashMap<String,Spin> SPIN_DATA = new HashMap<>();
     HashMap<String,Boolean> announce = new HashMap<>();
 
@@ -32,6 +32,7 @@ public class Setup {
                 new ItemStack(Material.GOLD_BLOCK),1,
                 new ItemStack(Material.EMERALD_BLOCK),1
         ));
+        RANK_DATA.put("__debug__",List.of(1,4,2,3));
         plugin.getServer().getPluginManager().registerEvents(new listener(),plugin);
         FileConfiguration config = plugin.getConfig();
         Map<String,String> map = Map.of("normal","0","rare","1","super_rare","2","ultra_rare","3","legendary","4");
@@ -59,7 +60,7 @@ public class Setup {
             System.err.println(id+"のガチャをreloadしようとしましたがデータが見つかりませんでした。");
             return false;
         }
-        SPIN_DATA.put(id,new Spin(this,id,spinData,RARE_DATA.get(id)));
+        SPIN_DATA.put(id,new Spin(this,id,spinData, RANK_DATA.get(id)));
         return true;
     }
 
@@ -75,11 +76,11 @@ public class Setup {
         if(!CustomConfig.existYml(id)){System.err.println("ガチャ『"+id+"』が存在しません");return false;}
         YamlConfiguration data = CustomConfig.getYmlByID(id);
         LinkedHashMap<ItemStack,Integer> gachaData = new LinkedHashMap<>();
-        RARE_DATA.put(id,new ArrayList<>());
+        RANK_DATA.put(id,new ArrayList<>());
         for(int i = 0;i<54;i++){
             if(data.get(String.valueOf(i))==null)break;
             gachaData.put(data.getItemStack(i+".item"),data.getInt(i+".weight"));
-            RARE_DATA.get(id).add(data.getInt(i+".rank"));
+            RANK_DATA.get(id).add(data.getInt(i+".rank"));
         }
         if(gachaData.size()==0){System.err.println("ガチャ『"+id+"』が空です");return false;};
         GACHA_DATA.put(id,gachaData);
