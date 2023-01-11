@@ -48,7 +48,7 @@ public class Log {
 
         try {
             FileWriter fileWriter = new FileWriter(logFile, true);
-            String writeData = dateStr+","+p.getName()+","+p.getUniqueId()+","+name.replace(',','.')+","+item.getAmount()+","+rank+", ,\n";
+            String writeData = dateStr+","+p.getName()+","+p.getUniqueId()+","+name.replace(',','.')+","+item.getAmount()+","+rank+","+item.toString().replace(",",";")+", \n";
             if(isFirstWrite)fileWriter.write("Time,Player,UUID,ItemName,Amount,Rank\n");
             fileWriter.write(writeData);
             fileWriter.close();
