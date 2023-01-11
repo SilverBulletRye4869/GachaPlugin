@@ -29,15 +29,19 @@ public class SetNum {
     private final String PATH;
     private final String GACHA_ID;
     private final YamlConfiguration DATA;
+    private final int MIN_NUM;
     private int nowNum;
 
-    public SetNum(Player p,String gachaID, String path) {
+
+    public SetNum(Player p,String gachaID, String path){this(p,gachaID,path,0);}
+    public SetNum(Player p,String gachaID, String path, int minNum) {
         this.p = p;
         p.closeInventory();
         this.PATH = path;
         this.GACHA_ID = gachaID;
+        this.MIN_NUM = minNum;
         DATA= CustomConfig.getYmlByID(gachaID);
-        nowNum = path.contains("weight") ? DATA.getInt(path) : 0;
+        nowNum = DATA.getInt(path);
         plugin.getServer().getPluginManager().registerEvents(new listener(), plugin);
     }
 
@@ -82,6 +86,10 @@ public class SetNum {
                     nowNum = 0;
                     return;
                 case 43:
+                    if(nowNum<MIN_NUM){
+                        sendPrefixMessage((Player)e.getWhoClicked(),"§c§l値は最低でも、『"+MIN_NUM+"』にする必要があります");
+                        return;
+                    }
                     DATA.set(PATH,nowNum);
                     p.closeInventory();
                     break;
