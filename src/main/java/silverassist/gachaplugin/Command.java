@@ -115,6 +115,18 @@ public class Command implements CommandExecutor {
                 GachaList gachalist = new GachaList(p,stream);
                 if(args.length == 2 && args[1].equals("noicon"))gachalist.open(0,true);
                 else gachalist.open(0,false);
+                return true;
+
+            case "delete":
+                if(!CustomConfig.existYml(id)){
+                    sendPrefixMessage(p,"§cそのガチャは存在しません");
+                    return true;
+                }
+
+                CustomConfig.deleteYmlByID(id);
+                GACHA_SYSTEM.deleteGacha(id);
+                sendPrefixMessage(p,"§aid: §d"+id+"§aのガチャを正常に削除しました");
+                return true;
             }
         return true;
     }

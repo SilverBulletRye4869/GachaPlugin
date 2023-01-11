@@ -34,9 +34,20 @@ public class CustomConfig {
             file.createNewFile();
         }catch (IOException e){
             System.err.println("id: "+id+"のymlファイルの作成に失敗しました");
+            e.printStackTrace();
             return null;
         }
         return getYmlByID(id);
+    }
+
+    static boolean deleteYmlByID(String id){
+        File file = new File(plugin.getDataFolder(),"data/"+id+".yml");
+        boolean result = file.delete();
+        if(result){
+            config.remove(id);
+            existSet.remove(id);
+        }
+        return result;
     }
 
     public static boolean reloadYmlByID(String id){

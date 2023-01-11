@@ -87,6 +87,14 @@ public class Setup {
         return true;
     }
 
+    public boolean deleteGacha(String id){
+        if(!GACHA_DATA.containsKey(id))return false;
+        this.GACHA_DATA.remove(id);
+        this.RANK_DATA.remove(id);
+        this.SPIN_DATA.remove(id);
+        return true;
+    }
+
     public Set<String> getLoadedGachaSet(){
         return GACHA_DATA.keySet();
     }
