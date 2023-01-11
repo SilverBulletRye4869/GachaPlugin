@@ -15,8 +15,10 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.java.JavaPlugin;
 import silverassist.gachaplugin.CustomConfig;
 import silverassist.gachaplugin.GachaPlugin;
+import silverassist.gachaplugin.Util;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 
 import static silverassist.gachaplugin.Util.PREFIX;
@@ -29,6 +31,7 @@ public class ItemList {
     private final Player p;
     private final String GACHA_ID;
     private final YamlConfiguration DATA;
+    private final HashSet<ItemStack> itemSet = new HashSet<>();
 
     private boolean isBack = true;
 
@@ -49,6 +52,7 @@ public class ItemList {
             ItemStack item = DATA.getItemStack(i+".item");
             if(item == null)break;
             item = new ItemStack(item);
+            itemSet.add(item);
             ItemMeta itemMeta = item.getItemMeta();
             List<String> lore = itemMeta.getLore() == null ? new ArrayList<>() : itemMeta.getLore();
             lore.add("§r");
@@ -91,6 +95,10 @@ public class ItemList {
                     int dataSize = DATA.getKeys(false).size() - 2;
                     if(dataSize>53)return;
                     ItemStack item = e.getCurrentItem();
+                    if(itemSet.contains(item)){
+                        Util.sendPrefixMessage(p,"§c§lそのアイテムは既に存在します");
+                        return;
+                    }
                     DATA.set(dataSize+".item",item);
                     DATA.set(dataSize+".weight",1);
                     DATA.set(dataSize+".rank",0);
