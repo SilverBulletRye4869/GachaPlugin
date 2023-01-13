@@ -81,7 +81,11 @@ public class Command implements CommandExecutor {
                 new MainMenu(p,id).open();
                 return true;
             case "reload":
-                if(args.length<2)return true;
+                if(args.length<2){
+                    GACHA_SYSTEM.reloadConfig();
+                    sendPrefixMessage(p,"§aconfigをreloadしました");
+                    return true;
+                }
                 if(!GACHA_SYSTEM.reloadGacha(args[1])){
                     sendPrefixMessage(p,"§cガチャのreloadに失敗しました。詳細はコンソールを確認してください。");
                     return true;
