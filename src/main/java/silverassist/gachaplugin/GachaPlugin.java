@@ -1,5 +1,6 @@
 package silverassist.gachaplugin;
 
+import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 import silverassist.gachaplugin.event.SignEvent;
 import silverassist.gachaplugin.mainSystem.Setup;
@@ -12,6 +13,7 @@ public final class GachaPlugin extends JavaPlugin {
     private static Setup GACHA_SYSTEM;
     private static GachaOpen GACHA_OPEN;
     private static Vault vault = null;
+    private static int serverVersion =0;
 
     @Override
     public void onEnable() {
@@ -23,6 +25,8 @@ public final class GachaPlugin extends JavaPlugin {
         if (!vault.setupEconomy() ) {
             vault.log.severe(String.format("[%s] プラグイン「Vault」「Essentials」の認証に失敗しました。", getDescription().getName()));
         }
+
+        serverVersion = Integer.parseInt(Bukkit.getServer().getVersion().split("\\.")[1]);
 
         GACHA_SYSTEM = new Setup(this);
         GACHA_OPEN = new GachaOpen(this);
@@ -36,6 +40,7 @@ public final class GachaPlugin extends JavaPlugin {
     public static GachaOpen getGachaOpen(){return GACHA_OPEN;}
     public static Vault getVault(){return vault;}
     public static boolean existVault(){return  Vault.getEconomy()!=null;}
+    public static int getVersion(){return serverVersion;}
 
     @Override
     public void onDisable() {

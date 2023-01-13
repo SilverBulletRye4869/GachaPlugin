@@ -25,10 +25,10 @@ import static silverassist.gachaplugin.Util.PREFIX;
 public class ItemEdit {
     private static final ItemStack[] RANK_BLOCK = new ItemStack[]{
             Util.createItem(Material.IRON_BLOCK, "§7§lノーマル",List.of("§f§lクリックで変更")),
-            Util.createItem(Material.COPPER_BLOCK, "§c§lレア",List.of("§f§lクリックで変更")),
+            Util.createItem(GachaPlugin.getVersion() >= 17 ? Material.COPPER_BLOCK : Material.REDSTONE_BLOCK, "§c§lレア",List.of("§f§lクリックで変更")),
             Util.createItem(Material.GOLD_BLOCK, "§e§lスーパーレア",List.of("§f§lクリックで変更")),
             Util.createItem(Material.DIAMOND_BLOCK, "§b§lウルトラレア",List.of("§f§lクリックで変更")),
-            Util.createItem(Material.NETHERITE_BLOCK, "§5§lレジェンダリー",List.of("§f§lクリックで変更"))
+            Util.createItem(GachaPlugin.getVersion() >= 16 ? Material.NETHERITE_BLOCK : Material.EMERALD_BLOCK, "§5§lレジェンダリー",List.of("§f§lクリックで変更"))
     };
 
     private static final JavaPlugin plugin = GachaPlugin.getInstance();

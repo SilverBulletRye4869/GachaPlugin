@@ -110,7 +110,7 @@ public class Spin {
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
-                int ver = Integer.parseInt(Bukkit.getServer().getVersion().split("\\.")[1]);
+                int ver = GachaPlugin.getVersion();
                 p.playSound(p.getLocation(),ver >= 17 ?"block.amethyst_block.break":"minecraft:block.glass.break",1,1);
                 p.getInventory().addItem(bingoItem);
 
