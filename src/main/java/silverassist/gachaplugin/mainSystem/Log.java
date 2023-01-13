@@ -12,7 +12,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Date;
-import java.util.UUID;
+import java.util.Objects;
 
 public class Log {
     public static final JavaPlugin plugin = GachaPlugin.getInstance();
@@ -20,7 +20,7 @@ public class Log {
     public static void write(String id, Player p, ItemStack item,int rank){
         Date date = new Date();
         String dateStr = (date.getYear()+1900)+"/"+(date.getMonth()+1)+"/"+date.getDate()+"-"+date.getHours()+":"+date.getMinutes()+":"+date.getSeconds();
-        String name = item.getItemMeta().hasDisplayName() ? item.getItemMeta().getDisplayName() : item.getType().toString();
+        String name = Objects.requireNonNull(item.getItemMeta()).hasDisplayName() ? item.getItemMeta().getDisplayName() : item.getType().toString();
 
         File logFile = new File(plugin.getDataFolder(),"log/"+id+".csv");
         boolean isFirstWrite = false;
@@ -49,7 +49,7 @@ public class Log {
         try {
             FileWriter fileWriter = new FileWriter(logFile, true);
             String writeData = dateStr+","+p.getName()+","+p.getUniqueId()+","+name.replace(',','.')+","+item.getAmount()+","+rank+","+item.toString().replace(",",";")+", \n";
-            if(isFirstWrite)fileWriter.write("Time,Player,UUID,ItemName,Amount,Rank\n");
+            if(isFirstWrite)fileWriter.write("Time,Player,UUID,ItemName,Amount,Rank,ItemStack\n");
             fileWriter.write(writeData);
             fileWriter.close();
         }catch (IOException e){

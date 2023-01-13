@@ -15,7 +15,6 @@ public class Util {
     public static final ItemStack GUI_BG = createItem(Material.LIGHT_BLUE_STAINED_GLASS_PANE,"§r");
 
     public static ItemStack createItem(Material m,String name){return createItem(m,name,null,0,null);}
-
     public static ItemStack createItem(Material m, String name, List<String> lore){return createItem(m,name,lore,0,null);}
     public static ItemStack createItem(Material m, String name, List<String> lore, HashMap<Enchantment,Integer> ench){return createItem(m,name,lore,0,ench);}
     public static ItemStack createItem(Material m, String name, List<String> lore, int model){return createItem(m,name,lore,model,null);}
