@@ -20,6 +20,7 @@ import static silverassist.gachaplugin.Util.sendPrefixMessage;
 
 public class Setup {
 
+    private final JavaPlugin plugin;
     private final HashMap<String,Map<ItemStack,Integer>> GACHA_DATA= new HashMap<>();
     private final HashMap<String,List<Integer>> RANK_DATA = new HashMap<>();
     private final HashMap<String,Spin> SPIN_DATA = new HashMap<>();
@@ -34,12 +35,8 @@ public class Setup {
         ));
         RANK_DATA.put("__debug__",List.of(1,4,2,3));
         plugin.getServer().getPluginManager().registerEvents(new listener(),plugin);
-        FileConfiguration config = plugin.getConfig();
-        Map<String,String> map = Map.of("normal","0","rare","1","super_rare","2","ultra_rare","3","legendary","4");
-        map.keySet().forEach(key ->{
-            announce.put(map.get(key)+"b",config.getBoolean("message."+key+".broadcast"));
-            announce.put(map.get(key)+"t",config.getBoolean("message."+key+".title"));
-        });
+        this.plugin = plugin;
+        reloadConfig();
     }
 
 
@@ -97,6 +94,15 @@ public class Setup {
 
     public Set<String> getLoadedGachaSet(){
         return GACHA_DATA.keySet();
+    }
+
+    public void reloadConfig(){
+        FileConfiguration config = plugin.getConfig();
+        Map<String,String> map = Map.of("normal","0","rare","1","super_rare","2","ultra_rare","3","legendary","4");
+        map.keySet().forEach(key ->{
+            announce.put(map.get(key)+"b",config.getBoolean("message."+key+".broadcast"));
+            announce.put(map.get(key)+"t",config.getBoolean("message."+key+".title"));
+        });
     }
 
     private class listener implements Listener {
