@@ -51,8 +51,8 @@ public class ItemList {
         for(int i = 0;i<54;i++){
             ItemStack item = DATA.getItemStack(i+".item");
             if(item == null)break;
-            item = new ItemStack(item);
             itemSet.add(item);
+            item = new ItemStack(item);
             ItemMeta itemMeta = item.getItemMeta();
             List<String> lore = itemMeta.getLore() == null ? new ArrayList<>() : itemMeta.getLore();
             lore.add("§r");
@@ -99,6 +99,7 @@ public class ItemList {
                         Util.sendPrefixMessage(p,"§c§lそのアイテムは既に存在します");
                         return;
                     }
+                    itemSet.add(item);
                     DATA.set(dataSize+".item",item);
                     DATA.set(dataSize+".weight",1);
                     DATA.set(dataSize+".rank",0);
