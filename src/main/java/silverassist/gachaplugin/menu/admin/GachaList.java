@@ -17,8 +17,12 @@ import org.bukkit.plugin.java.JavaPlugin;
 import silverassist.gachaplugin.CustomConfig;
 import silverassist.gachaplugin.GachaPlugin;
 
+import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.stream.Stream;
 
 import static silverassist.gachaplugin.Util.*;
@@ -27,18 +31,15 @@ public class GachaList {
     private static final JavaPlugin plugin = GachaPlugin.getInstance();
 
     private final Player p;
-    private final ArrayList<String> fileNames = new ArrayList<>();
 
+    private final List<String> fileNames;
     private boolean noIcon = false;
     private boolean opening = true;  //閉じた後に非同期が動かないようにするやつ
     private int nowPage = 0;
 
-    public GachaList(Player p, Stream<Path> stream){
+    public GachaList(Player p){
         this.p = p;
-        stream.forEach(e->{
-            String fileName = e.getFileName().toString();
-            if(fileName.matches(".*\\.yml$")) fileNames.add(fileName.replaceAll("\\.yml$",""));
-        });
+        this.fileNames = getGachaList("");
         p.closeInventory();
         plugin.getServer().getPluginManager().registerEvents(new listener(),plugin);
     }
@@ -71,6 +72,23 @@ public class GachaList {
                 }
             }
         });
+    }
+
+    public static List<String> getGachaList(String startRegex){
+        Stream<Path> stream;
+        try {
+            stream = Files.list(Paths.get(plugin.getDataFolder().getPath()+"/data"));
+        } catch (IOException e) {
+            System.err.println("dataフォルダの取得に失敗しました");
+            e.printStackTrace();
+            return null;
+        }
+        List<String> fileNames = new ArrayList<>();
+        stream.forEach(e->{
+            String fileName = e.getFileName().toString();
+            if(fileName.matches("^"+startRegex+".*\\.yml$")) fileNames.add(fileName.replaceAll("\\.yml$",""));
+        });
+        return fileNames;
     }
 
     private boolean unregisterCancel = false;
