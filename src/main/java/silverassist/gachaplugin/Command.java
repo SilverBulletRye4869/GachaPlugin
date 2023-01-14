@@ -4,6 +4,8 @@ import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.command.PluginCommand;
+import org.bukkit.command.TabCompleter;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -14,11 +16,7 @@ import silverassist.gachaplugin.menu.admin.GachaList;
 import silverassist.gachaplugin.menu.admin.MainMenu;
 import silverassist.gachaplugin.menu.user.GachaOpen;
 
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.stream.Stream;
+import java.util.List;
 
 import static silverassist.gachaplugin.Util.sendPrefixMessage;
 
@@ -31,7 +29,9 @@ public class Command implements CommandExecutor {
 
     public Command(JavaPlugin plugin){
         this.plugin = plugin;
-        plugin.getCommand("gacha").setExecutor(this);
+        PluginCommand command = plugin.getCommand("gacha");
+        command.setExecutor(this);
+        command.setTabCompleter(new Tab());
     }
 
     @Override
@@ -108,15 +108,8 @@ public class Command implements CommandExecutor {
                 return true;
 
             case "list":
-                Stream<Path> stream;
-                try {
-                    stream = Files.list(Paths.get(plugin.getDataFolder().getPath()+"/data"));
-                } catch (IOException e) {
-                    sendPrefixMessage(p,"dataフォルダの取得に失敗しました");
-                    new IOException("dataフォルダの取得に失敗しました");
-                    return true;
-                }
-                GachaList gachalist = new GachaList(p,stream);
+
+                GachaList gachalist = new GachaList(p);
                 if(args.length == 2 && args[1].equals("noicon"))gachalist.open(0,true);
                 else gachalist.open(0,false);
                 return true;
@@ -133,5 +126,28 @@ public class Command implements CommandExecutor {
                 return true;
             }
         return true;
+    }
+
+    private class Tab implements TabCompleter{
+        @Override
+        public List<String> onTabComplete(CommandSender sender, org.bukkit.command.Command command,String alias, String[] args) {
+            if(!(sender instanceof Player && sender.isOp()))return null;
+            switch (args.length){
+                case 1:
+                    return List.of("start","create","edit","open","reload","reloadall","list","delete");
+                case 2:
+                    switch (args[0]){
+                        case "start":
+                        case "edit":
+                        case "open":
+                        case "reload":
+                            return GachaList.getGachaList(args[1]);
+                        case "list":
+                            return List.of("noicon");
+                    }
+            }
+
+            return null;
+        }
     }
 }
