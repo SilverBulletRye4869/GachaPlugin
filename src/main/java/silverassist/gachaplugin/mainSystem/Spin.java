@@ -24,8 +24,6 @@ public class Spin {
     private static final ItemStack BG = Util.createItem(Material.LIGHT_BLUE_STAINED_GLASS_PANE,"§r");
     private static final ItemStack HIT = Util.createItem(Material.YELLOW_STAINED_GLASS_PANE,"§r");
     private static final JavaPlugin plugin = GachaPlugin.getInstance();
-    private static Set<Player> playing = new HashSet<>();
-    private static Set<Player> openingGachaGUI = new HashSet<>();
 
 
     private final Setup GACHA_SYSTEM;
@@ -52,8 +50,8 @@ public class Spin {
 
     public void run(Player p){
         p.closeInventory();
-        playing.add(p);
-        openingGachaGUI.add(p);
+        GACHA_SYSTEM.playing.add(p);
+        GACHA_SYSTEM.openingGachaGUI.add(p);
         Inventory inv = Bukkit.createInventory(p,27,"gacha-"+ID);
         for(int i =0;i<9;i++){
             inv.setItem(i,BG);
@@ -86,7 +84,7 @@ public class Spin {
                 //ぐるぐる回す
                 for(int i = 0;i<LOOP_NUM;i++) {
                     p.playSound(p.getLocation(),"block.anvil.break",1,1);
-                    if(isOpen(p)){
+                    if(GACHA_SYSTEM.isOpen(p)){
                         InventoryView inv_c = p.getOpenInventory();
                         for (int j = 0; j < 8; j++) inv_c.setItem(9 + j, inv_c.getItem(10 + j));
                         if(i==LOOP_NUM-5)inv_c.setItem(17,bingoItem);  //最後に留まる位置の調整
@@ -126,7 +124,7 @@ public class Spin {
                 }
                 Log.write(ID,p,bingoItem,rank);
 
-                playing.remove(p);
+                GACHA_SYSTEM.playing.remove(p);
             }
         });
     }
@@ -134,10 +132,7 @@ public class Spin {
     public int getPaymentMoney(){return this.PAYMENT_MONEY;}
     public ItemStack getPaymentItem(){return this.PAYMENT_ITEM;}
 
-    public static boolean isPlay(Player p){return playing.contains(p);}
 
-    public static boolean isOpen(Player p){return openingGachaGUI.contains(p);}
-    public static void setClose(Player p){openingGachaGUI.remove(p);}
 
 
 }

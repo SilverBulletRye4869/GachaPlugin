@@ -24,6 +24,8 @@ public class Setup {
     private final HashMap<String,Map<ItemStack,Integer>> GACHA_DATA= new HashMap<>();
     private final HashMap<String,List<Integer>> RANK_DATA = new HashMap<>();
     private final HashMap<String,Spin> SPIN_DATA = new HashMap<>();
+    final Set<Player> playing = new HashSet<>();
+    final Set<Player> openingGachaGUI = new HashSet<>();
     HashMap<String,Boolean> announce = new HashMap<>();
 
     public Setup(JavaPlugin plugin){
@@ -105,18 +107,24 @@ public class Setup {
         });
     }
 
+
+    public boolean isPlay(Player p){return playing.contains(p);}
+
+    public boolean isOpen(Player p){return openingGachaGUI.contains(p);}
+    public void setClose(Player p){openingGachaGUI.remove(p);}
+
     private class listener implements Listener {
         @EventHandler
         public void inventoryCloseEvent(InventoryCloseEvent e){
             if(!(e.getPlayer() instanceof Player))return;
             Player p = (Player) e.getPlayer();
-            if(Spin.isOpen(p))Spin.setClose(p);
+            if(isOpen(p))setClose(p);
         }
         @EventHandler
         public void inventoryClickEvent(InventoryClickEvent e){
             if(!(e.getWhoClicked() instanceof Player))return;
             Player p = (Player) e.getWhoClicked();
-            if(e.getCurrentItem()==null || !Spin.isOpen(p))return;
+            if(e.getCurrentItem()==null || !isOpen(p))return;
             e.setCancelled(true);
             sendPrefixMessage(p,"§cガチャをまわしている間はインベントリを触ることはできません");
         }

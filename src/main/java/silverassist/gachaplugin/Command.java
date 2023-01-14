@@ -49,7 +49,7 @@ public class Command implements CommandExecutor {
         }
         switch (args[0]){
             case "test":
-                if(Spin.isPlay(p))return true;
+                if(GACHA_SYSTEM.isPlay(p))return true;
 
                 GACHA_SYSTEM.getGacha("__debug__").run(p);
                 return true;

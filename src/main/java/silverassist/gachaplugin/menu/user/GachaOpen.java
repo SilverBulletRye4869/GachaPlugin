@@ -70,7 +70,7 @@ public class GachaOpen {
             e.setCancelled(true);
             if(e.getClickedInventory() == null || !e.getClickedInventory().getType().equals(InventoryType.CHEST) || e.getCurrentItem().getType()!=Material.LIME_STAINED_GLASS_PANE)return;
             Player p = (Player)e.getWhoClicked();
-            if(Spin.isPlay(p)){
+            if(GACHA_SYSTEM.isPlay(p)){
                 sendPrefixMessage(p,"§cあなたは現在別のガチャをまわしています。");
                 return;
             }
