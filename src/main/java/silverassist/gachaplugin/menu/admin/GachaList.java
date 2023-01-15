@@ -50,8 +50,9 @@ public class GachaList {
         Inventory inv = Bukkit.createInventory(p,54,PREFIX+"§d§lガチャ一覧");
         for(int i = 45;i<54;i++)inv.setItem(i,GUI_BG);
         if(page>0)inv.setItem(45,createItem(Material.RED_STAINED_GLASS_PANE,"§c前へ"));
-        if(page < (fileNames.size()-1)/45)inv.setItem(53,createItem(Material.RED_STAINED_GLASS_PANE,"§a§l次へ"));
+        if(page < (fileNames.size()-1)/45)inv.setItem(53,createItem(Material.LIME_STAINED_GLASS_PANE,"§a§l次へ"));
         p.openInventory(inv);
+        this.unregisterCancel = false;
         Bukkit.getScheduler().runTaskAsynchronously(plugin, new Runnable() {
             @Override
             public void run() {
