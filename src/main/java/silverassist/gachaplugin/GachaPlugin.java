@@ -6,6 +6,10 @@ import silverassist.gachaplugin.event.SignEvent;
 import silverassist.gachaplugin.mainSystem.Setup;
 import silverassist.gachaplugin.menu.user.GachaOpen;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+
 
 public final class GachaPlugin extends JavaPlugin {
 
@@ -22,11 +26,16 @@ public final class GachaPlugin extends JavaPlugin {
         this.saveDefaultConfig();
 
         vault = new Vault(this);
-        if (!vault.setupEconomy() ) {
-            vault.log.severe(String.format("[%s] プラグイン「Vault」「Essentials」の認証に失敗しました。", getDescription().getName()));
+        if (!vault.setupEconomy() ) vault.log.severe(String.format("[%s] プラグイン「Vault」「Essentials」の認証に失敗しました。", getDescription().getName()));
+
+        try {
+            Files.createDirectories(Paths.get(this.getDataFolder()+"/data"));
+        } catch (IOException e) {
+            System.err.println("[GacgaPlugin]Dataフォルダの作成に失敗しました");
+            getServer().getPluginManager().disablePlugin(this);
         }
 
-        serverVersion = Integer.parseInt(Bukkit.getServer().getVersion().split("\\.")[1]);
+        serverVersion = Integer.parseInt(Bukkit.getServer().getVersion().split("\\.")[1].replace(")",""));
 
         GACHA_SYSTEM = new Setup(this);
         GACHA_OPEN = new GachaOpen(this);
