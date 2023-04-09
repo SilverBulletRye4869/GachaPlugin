@@ -34,7 +34,7 @@ public class SignEvent implements Listener {
     @EventHandler
     public void onSignPlace(SignChangeEvent e){
         if(!e.getPlayer().isOp())return;
-        String lines[] = e.getLines();
+        String[] lines = e.getLines();
         if(!lines[0].equals("gacha"))return;
         if(!CustomConfig.existYml(lines[3]))return;
         e.setLine(0,PREFIX);
